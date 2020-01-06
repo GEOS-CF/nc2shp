@@ -190,15 +190,15 @@ def parse_args(args=None):
     ifile : str
         NetCDF file to be read. Can contain multiple time stamps in the same
         file, or multiple files to be read at once (use asterisk in the file
-        name in the latter case).
+        name in the latter case). Also accepts OPeNDAP address.
     year : int
-        Start year for data to be analyzed.
+        Start year for data to be analyzed. Will use yesterday if set to None.
     month : int
-        Start month for data to be analyzed.
+        Start month for data to be analyzed. Will use yesterday if set to None.
     day : int
-        Start day for data to be analyzed.
+        Start day for data to be analyzed. Will use yesterday if set to None.
     time-window : int
-        Time window of data to be analyzed. In hours. 
+        Time window of data to be analyzed. In hours. Defaults to 24 hours.
     ncvars : str
         Variables on netCDF file to use. Can be more than one variable, in 
         which case the variables are added together.
@@ -239,10 +239,10 @@ def parse_args(args=None):
     p.add_argument('-s','--ncscal',type=float,help='scale factor applied to netCDF data', default=1.0)
     p.add_argument('-f','--func',type=str,help='averaging function to apply to input data',default='mean')
     p.add_argument('-c','--contours',type=float,nargs='+',help='list of contour lines',default=[10.0, 25.0])
-    p.add_argument('-o','--shapefile',type=str,help='output shapefile',default='test.shp')
+    p.add_argument('-o','--shapefile',type=str,help='output shapefile',default='pm25_%Y%m%d.shp')
     p.add_argument('-p','--propname',type=str,help='shapefile property name',default='pm25')
     p.add_argument('-cf','--contour-figname',type=str,help='file name of contour figure',default=None)
-    p.add_argument('-ff','--fillfig-name',type=str,help='file name of filled contour figure',default='pm25.png')
+    p.add_argument('-ff','--fillfig-name',type=str,help='file name of filled contour figure',default='pm25_%Y%m%d.png')
     p.add_argument('-fc','--fillfig-contour',type=float,help='contour to use for filled contour figure',default=25.0)
     p.add_argument('-ft','--fillfig-title',type=str,help='title for filled contour figure',default='Surface PM2.5 >= 25$\,\mu$gm$^{-3}$ (%Y-%m-%d)')
     p.add_argument('-cl','--central-longitude',type=int,help='central longitude used in filled contour figure',default=0)
