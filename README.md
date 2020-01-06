@@ -1,5 +1,6 @@
 # nc2shp
-Command line function to create a shapefile from netCDF data contours. The contours are created using matplotlib, and the corresponding polylines are then written to a shapefile. This routine also creates a figure with one of the contour lines filled. See argument parser for detailed description of input arguments.
+Command line function to create a shapefile from netCDF data contours. The contours are created using matplotlib, and the corresponding polylines are then written to a shapefile. This routine also creates a figure with one of the contour lines filled. 
+The netCDF data is either read from local files or remotely via opendap. See argument parser for detailed description of input arguments.
 
 ## Examples
 
