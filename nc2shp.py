@@ -147,7 +147,7 @@ def read_shapefile_and_plot_filled_contour(shapefile,contour,ofile,title,central
 
 def get_analysis_date(year,month,day,time_window):
     '''Return the analysis date, parsed from the input arguments.'''
-    today = dt.datetime.today()
+    today = dt.datetime.today() - dt.timedelta(days=1)
     year = year if year is not None else today.year   
     month = month if month is not None else today.month   
     day = day if day is not None else today.day   
@@ -164,7 +164,8 @@ def main(args):
     start,end = get_analysis_date(args.year,args.month,args.day,args.time_window)
     arr, meantime = read_nc(args.ifile,start,end,args.ncvars,args.ncscal,args.func)
 #---Get contours, eventually write to shapefile
-    cs = get_contours(arr,args.contours,meantime.strftime(args.contour_figname))
+    figname = meantime.strftime(args.contour_figname) if args.contour_figname is not None else None
+    cs = get_contours(arr,args.contours,figname)
 #---Write contours to shapefile
     shapefile = meantime.strftime(args.shapefile) if args.shapefile is not None else None
     write_shapefile(cs,args.propname,shapefile)
@@ -191,21 +192,21 @@ def parse_args(args=None):
         file, or multiple files to be read at once (use asterisk in the file
         name in the latter case).
     year : int
-        Start year for data to be analyzed. Only needed if year token is used in netCDF file.
+        Start year for data to be analyzed.
     month : int
-        Start month for data to be analyzed. Only needed if month token is used in netCDF file.
+        Start month for data to be analyzed.
     day : int
-        Start day for data to be analyzed. Only needed if day token is used in netCDF file.
+        Start day for data to be analyzed.
     time-window : int
         Time window of data to be analyzed. In hours. 
     ncvars : str
-        Variables on netCDF file to use. Can be more than one variable, in
-        which case the variables are added together
+        Variables on netCDF file to use. Can be more than one variable, in 
+        which case the variables are added together.
     ncscal : float
         Scale factor to be applied to netCDF data (after aggregation).
     func : str
-        Aggregation method if data has more than one time stamp. Can be one of
-       'mean', 'min', 'max'.
+        Temporal aggregation method if data has more than one time stamp. 
+        Can be one of 'mean', 'min', 'max'.
     contours : float
         Contour levels to use. Can be more than one.
     shapefile : str
@@ -229,21 +230,21 @@ def parse_args(args=None):
     '''
 
     p = argparse.ArgumentParser(description='Undef certain variables')
-    p.add_argument('-i','--ifile',type=str,help='input netCDF file',default=None)
+    p.add_argument('-i','--ifile',type=str,help='input netCDF file',default='https://opendap.nccs.nasa.gov/dods/gmao/geos-cf/assim/chm_tavg_1hr_g1440x721_v1')
     p.add_argument('-y','--year',type=int,help='data start year',default=None)
     p.add_argument('-m','--month',type=int,help='data start month',default=None)
     p.add_argument('-d','--day',type=int,help='data start day',default=None)
     p.add_argument('-t','--time-window',type=int,help='data time window, in hours',default=24)
-    p.add_argument('-v','--ncvars',type=str,nargs='+',help='netCDF variables to use', default=['TOTEXTTAU'])
+    p.add_argument('-v','--ncvars',type=str,nargs='+',help='netCDF variables to use', default=['pm25_rh35_gcc'])
     p.add_argument('-s','--ncscal',type=float,help='scale factor applied to netCDF data', default=1.0)
-    p.add_argument('-f','--func',type=str,help='averaging function to apply to input data',default="mean")
-    p.add_argument('-c','--contours',type=float,nargs='+',help='list of contour lines',default=[0.25, 0.5])
+    p.add_argument('-f','--func',type=str,help='averaging function to apply to input data',default='mean')
+    p.add_argument('-c','--contours',type=float,nargs='+',help='list of contour lines',default=[10.0, 25.0])
     p.add_argument('-o','--shapefile',type=str,help='output shapefile',default='test.shp')
-    p.add_argument('-p','--propname',type=str,help='shapefile property name',default='aod')
+    p.add_argument('-p','--propname',type=str,help='shapefile property name',default='pm25')
     p.add_argument('-cf','--contour-figname',type=str,help='file name of contour figure',default=None)
-    p.add_argument('-ff','--fillfig-name',type=str,help='file name of filled contour figure',default='fillfig.png')
-    p.add_argument('-fc','--fillfig-contour',type=float,help='contour to use for filled contour figure',default=0.25)
-    p.add_argument('-ft','--fillfig-title',type=str,help='title for filled contour figure',default='total AOD >= 0.25 (%Y-%m-%d)')
+    p.add_argument('-ff','--fillfig-name',type=str,help='file name of filled contour figure',default='pm25.png')
+    p.add_argument('-fc','--fillfig-contour',type=float,help='contour to use for filled contour figure',default=25.0)
+    p.add_argument('-ft','--fillfig-title',type=str,help='title for filled contour figure',default='Surface PM2.5 >= 25$\,\mu$gm$^{-3}$ (%Y-%m-%d)')
     p.add_argument('-cl','--central-longitude',type=int,help='central longitude used in filled contour figure',default=0)
     p.add_argument('-ex','--extent',nargs=4,type=int,help='extent of filled contour figure',default=[-180, 180, -90, 90])
     return p.parse_args(args)
